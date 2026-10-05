@@ -1,0 +1,23 @@
+/*
+ * Design tokens — foundation subset. The complete system (palette, type scale,
+ * spacing, motion) is defined with the architecture; only values the shell
+ * needs today live here.
+ */
+
+:root {
+  /* Surface. --color-bg mirrors CLEAR_COLOR in src/gl/renderer.ts. */
+  --color-bg: #0a0b0d;
+  --color-fg: #e4e6e9;
+
+  /* Interaction */
+  --color-focus: #e4e6e9;
+
+  /* Typography — platform stacks until typefaces are selected */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono:
+    ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+
+  /* Stacking layers */
+  --layer-stage: 0;
+  --layer-interface: 1;
+}

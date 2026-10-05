@@ -1,0 +1,21 @@
+/*
+ * Layer composition: the WebGL stage is fixed to the viewport beneath the
+ * document interface. The root isolates its own stacking context.
+ */
+
+.root {
+  position: relative;
+  isolation: isolate;
+  min-height: 100%;
+}
+
+.stage {
+  position: fixed;
+  inset: 0;
+  z-index: var(--layer-stage);
+}
+
+.interface {
+  position: relative;
+  z-index: var(--layer-interface);
+}
