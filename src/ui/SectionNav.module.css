@@ -1,0 +1,74 @@
+.nav {
+  pointer-events: auto;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch-target);
+  padding-inline: var(--space-2);
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  transition: color var(--motion-hover) var(--ease-standard);
+}
+
+.index {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-fg-subtle);
+  transition: color var(--motion-hover) var(--ease-standard);
+}
+
+.label {
+  font-size: var(--text-sm);
+}
+
+.link[aria-current] {
+  color: var(--color-fg);
+}
+
+.link[aria-current] .index {
+  color: var(--color-signal);
+}
+
+:root[data-hover='hover'] .link:hover {
+  color: var(--color-fg);
+}
+
+/* Precise pointers need less room than fingers (WCAG 2.5.8 floor is 24px). */
+:root[data-pointer='fine'] .link {
+  min-height: var(--space-6);
+}
+
+/* Compact: a single row of indices; only the current section is named. */
+:root[data-layout='compact'] .list {
+  flex-direction: row;
+  gap: 0;
+}
+
+:root[data-layout='compact'] .link {
+  min-width: var(--touch-target);
+  justify-content: center;
+  padding-inline: 0;
+}
+
+:root[data-layout='compact'] .label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

@@ -1,0 +1,14 @@
+/* Positioned by the stage via transform; the origin is the viewport's top-left. */
+.label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--motion-hover) var(--ease-standard);
+  will-change: transform;
+}
+
+.label[data-visible='true'] {
+  opacity: 1;
+}

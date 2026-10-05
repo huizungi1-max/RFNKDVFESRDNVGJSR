@@ -1,0 +1,60 @@
+/* Panels stack over the full viewport; only present ones take input. */
+.panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: var(--chrome-top) var(--chrome-right) var(--chrome-bottom) var(--chrome-left);
+  pointer-events: none;
+}
+
+.panel[data-phase='active'],
+.panel[data-phase='entering'] {
+  z-index: 1;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  max-width: 40rem;
+}
+
+.content[data-phase='active'],
+.content[data-phase='entering'] {
+  pointer-events: auto;
+}
+
+.index {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-signal);
+}
+
+.title {
+  font-size: var(--text-display);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-fg);
+}
+
+.title:focus {
+  outline: none;
+}
+
+/* Step names share one slot and crossfade; the slot reserves a line. */
+.stepTitles {
+  display: grid;
+}
+
+.stepTitle {
+  grid-area: 1 / 1;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-fg-muted);
+}

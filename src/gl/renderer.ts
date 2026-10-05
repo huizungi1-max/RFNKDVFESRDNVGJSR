@@ -1,29 +1,21 @@
+import type { RootState } from '@react-three/fiber';
 import {
   NeutralToneMapping,
   SRGBColorSpace,
   WebGLRenderer,
   type WebGLRendererParameters,
 } from 'three';
-import type { Dpr, RootState } from '@react-three/fiber';
 
-/**
- * Canvas clear colour (sRGB). Mirrors `--color-bg` in src/styles/tokens.css so
- * the canvas is indistinguishable from the page behind it — keep them in sync.
- */
-export const CLEAR_COLOR = '#0a0b0d';
-
-/**
- * Device-pixel-ratio bounds. The ceiling caps fill-rate cost on high-density
- * displays, where rendering beyond 2× is rarely perceptible.
- */
-export const DPR_RANGE: Dpr = [1, 2];
+import { isSoftwareRenderer } from '@/environment/profile';
+import { QUALITY } from '@/environment/quality';
+import { environmentStore } from '@/environment/store';
+import { stageStore } from '@/stage/store';
 
 /** WebGL context attributes. Fixed for the lifetime of the context. */
 const CONTEXT_ATTRIBUTES = {
   // three.js always allocates an alpha channel; `false` makes it clear with
   // alpha 1, so the canvas is opaque and the page never shows through.
   alpha: false,
-  antialias: true,
   depth: true,
   // No stencil-based techniques are planned; omitting the buffer saves memory.
   stencil: false,
@@ -31,9 +23,24 @@ const CONTEXT_ATTRIBUTES = {
   preserveDrawingBuffer: false,
 } as const satisfies WebGLRendererParameters;
 
+/** The GPU's renderer string, avoiding the debug extension where it isn't needed. */
+function rendererName(context: WebGLRenderingContext | WebGL2RenderingContext): string {
+  const reported: unknown = context.getParameter(context.RENDERER);
+  if (typeof reported === 'string' && !/^webkit webgl$/i.test(reported)) return reported;
+  const info = context.getExtension('WEBGL_debug_renderer_info');
+  const unmasked: unknown = info ? context.getParameter(info.UNMASKED_RENDERER_WEBGL) : null;
+  return typeof unmasked === 'string' ? unmasked : 'unknown';
+}
+
 /** Renderer factory for the `gl` prop of `<Canvas>`. */
 export function createRenderer(defaults: WebGLRendererParameters): WebGLRenderer {
-  return new WebGLRenderer({ ...defaults, ...CONTEXT_ATTRIBUTES });
+  const { antialias } = QUALITY[environmentStore.getState().tier];
+  const renderer = new WebGLRenderer({ ...defaults, ...CONTEXT_ATTRIBUTES, antialias });
+  const gpu = rendererName(renderer.getContext());
+  stageStore.getState().setGpu(gpu);
+  // No GPU acceleration: keep the experience, at the lightest settings.
+  if (isSoftwareRenderer(gpu)) environmentStore.getState().capTier('low');
+  return renderer;
 }
 
 /**

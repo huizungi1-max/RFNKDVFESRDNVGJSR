@@ -1,0 +1,55 @@
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  pointer-events: auto;
+}
+
+.steps {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step,
+.arrow {
+  display: inline-grid;
+  place-items: center;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-fg-subtle);
+  cursor: pointer;
+  transition: color var(--motion-hover) var(--ease-standard);
+}
+
+.step[aria-current] {
+  color: var(--color-signal);
+}
+
+.arrow:disabled {
+  color: var(--color-line-strong);
+  cursor: default;
+}
+
+:root[data-hover='hover'] .step:hover,
+:root[data-hover='hover'] .arrow:not(:disabled):hover {
+  color: var(--color-fg);
+}
+
+:root[data-pointer='fine'] .step,
+:root[data-pointer='fine'] .arrow {
+  min-width: var(--space-6);
+  min-height: var(--space-6);
+}
+
+/* Compact: an even, narrower index so all stages fit one row at full height. */
+:root[data-layout='compact'] .step {
+  min-width: 1.75rem;
+}

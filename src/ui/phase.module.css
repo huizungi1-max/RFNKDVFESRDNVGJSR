@@ -1,0 +1,37 @@
+/*
+ * Phase choreography for interface content. Timing comes from the current
+ * transition's choreography (--phase-* on :root, see styles/global.css):
+ * outgoing content leaves on the build curve; incoming content waits a beat,
+ * then rises in on the settle curve. Transitions (not animations) so an
+ * interrupted change reverses from wherever it is.
+ */
+
+.phased {
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, var(--motion-shift), 0);
+  transition:
+    opacity var(--phase-exit) var(--ease-build),
+    transform 0s linear var(--phase-exit),
+    visibility 0s linear var(--phase-exit);
+}
+
+.phased[data-phase='exiting'] {
+  visibility: visible;
+  transform: translate3d(0, calc(var(--motion-shift) * -0.5), 0);
+  transition:
+    opacity var(--phase-exit) var(--ease-build),
+    transform var(--phase-exit) var(--ease-build),
+    visibility 0s;
+}
+
+.phased[data-phase='entering'],
+.phased[data-phase='active'] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity var(--phase-enter) var(--ease-settle) var(--phase-enter-delay),
+    transform var(--phase-enter) var(--ease-settle) var(--phase-enter-delay),
+    visibility 0s;
+}

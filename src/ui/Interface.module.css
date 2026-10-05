@@ -1,0 +1,70 @@
+/*
+ * The interface layer covers the viewport but lets pointer input through to the
+ * stage; interactive elements opt back in. Chrome insets respect device safe areas.
+ */
+.interface {
+  --chrome-top: max(var(--gutter), env(safe-area-inset-top));
+  --chrome-right: max(var(--gutter), env(safe-area-inset-right));
+  --chrome-bottom: calc(
+    max(var(--gutter), env(safe-area-inset-bottom)) + var(--touch-target) + var(--space-5)
+  );
+  --chrome-left: max(var(--gutter), env(safe-area-inset-left));
+
+  position: fixed;
+  inset: 0;
+  z-index: var(--layer-interface);
+  pointer-events: none;
+}
+
+.header {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: var(--layer-chrome);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-5);
+  padding: var(--chrome-top) var(--chrome-right) 0 var(--chrome-left);
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-fg);
+  text-decoration: none;
+  pointer-events: auto;
+}
+
+.main {
+  position: absolute;
+  inset: 0;
+}
+
+.footer {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: var(--layer-chrome);
+  display: flex;
+  padding: 0 var(--chrome-right) max(var(--gutter), env(safe-area-inset-bottom)) var(--chrome-left);
+}
+
+.skip {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: var(--layer-overlay);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface-raised);
+  color: var(--color-fg);
+  font-size: var(--text-sm);
+  pointer-events: auto;
+  transform: translateY(calc(-100% - var(--space-4)));
+}
+
+.skip:focus-visible {
+  transform: none;
+}

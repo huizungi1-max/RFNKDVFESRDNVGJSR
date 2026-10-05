@@ -19,10 +19,36 @@
     "react/only-export-components": ["error", { "allowConstantExport": true }],
     "react/react-in-jsx-scope": "off",
     "import/no-cycle": "error",
-    "import/no-unassigned-import": ["warn", { "allow": ["**/*.css"] }],
+    "import/no-unassigned-import": ["warn", { "allow": ["**/*.css", "virtual:*.css"] }],
     "typescript/no-explicit-any": "error",
     "eqeqeq": ["error", "smart"],
     "no-console": ["error", { "allow": ["warn", "error"] }]
   },
+  "overrides": [
+    {
+      "files": ["src/gl/**", "src/sections/*/scene/**"],
+      "rules": {
+        "react/immutability": "off"
+      }
+    },
+    {
+      "files": ["src/**"],
+      "excludeFiles": ["src/gl/**", "src/sections/*/scene/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["three", "three/*", "@react-three/*"],
+                "allowTypeImports": true,
+                "message": "three.js belongs to the lazily loaded stage: import it only in src/gl or a section's scene/ folder."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
   "ignorePatterns": ["dist/**"]
 }

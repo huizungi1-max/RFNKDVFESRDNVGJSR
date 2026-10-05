@@ -1,4 +1,11 @@
-/* Document defaults and a minimal reset. */
+/*
+ * Document defaults. Tokens arrive from virtual:design-tokens.css (src/design).
+ *
+ * The page never scrolls: the experience is a fixed viewport whose content
+ * changes through navigation. Overscroll is disabled so elastic bounce,
+ * pull-to-refresh and history swipes don't compete with navigation gestures;
+ * pinch-zoom stays available.
+ */
 
 *,
 *::before,
@@ -15,15 +22,43 @@ html {
   background-color: var(--color-bg);
   color: var(--color-fg);
   font-family: var(--font-sans);
-  line-height: 1.5;
+  font-size: 100%;
+  line-height: var(--leading-normal);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+
+  /* Interface content timing follows the transition's choreography. */
+  --phase-exit: var(--motion-travel-exit);
+  --phase-enter: var(--motion-travel-enter);
+  --phase-enter-delay: var(--motion-travel-enter-delay);
+}
+
+html[data-choreography='cut'] {
+  --phase-exit: var(--motion-cut-exit);
+  --phase-enter: var(--motion-cut-enter);
+  --phase-enter-delay: var(--motion-cut-enter-delay);
+}
+
+html[data-choreography='step'] {
+  --phase-exit: var(--motion-step-exit);
+  --phase-enter: var(--motion-step-enter);
+  --phase-enter-delay: var(--motion-step-enter-delay);
 }
 
 html,
-body,
+body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  touch-action: manipulation;
+}
+
 #root {
   height: 100%;
 }
@@ -46,6 +81,15 @@ select {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-focus);
+  outline: var(--stroke-focus) solid var(--color-signal);
   outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

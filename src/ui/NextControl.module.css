@@ -1,0 +1,45 @@
+.next {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch-target);
+  padding: 0 var(--space-2) 0 0;
+  border: 0;
+  background: none;
+  color: var(--color-fg-muted);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color var(--motion-hover) var(--ease-standard);
+}
+
+.arrow {
+  display: inline-grid;
+  place-items: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border: var(--stroke-hairline) solid var(--color-line-strong);
+  border-radius: 50%;
+  font-size: var(--text-sm);
+  color: var(--color-fg);
+  transition: border-color var(--motion-hover) var(--ease-standard);
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+
+.label {
+  font-size: var(--text-sm);
+}
+
+:root[data-hover='hover'] .next:hover {
+  color: var(--color-fg);
+}
+
+:root[data-hover='hover'] .next:hover .arrow {
+  border-color: var(--color-signal);
+}

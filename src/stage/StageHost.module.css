@@ -1,0 +1,12 @@
+/* The stage fades in once it renders; until then the page background shows. */
+.stage {
+  position: fixed;
+  inset: 0;
+  z-index: var(--layer-stage);
+  opacity: 0;
+  transition: opacity var(--motion-reveal) var(--ease-settle);
+}
+
+.stage[data-status='ready'] {
+  opacity: 1;
+}

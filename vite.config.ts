@@ -1,9 +1,11 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
+import { designTokens } from './tooling/design-tokens.ts';
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), designTokens()],
   resolve: {
     // Single source of truth for the `@/` alias: `paths` in tsconfig.app.json.
     tsconfigPaths: true,
