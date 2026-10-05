@@ -30,22 +30,27 @@ html {
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
 
-  /* Interface content timing follows the transition's choreography. */
+  /*
+   * Interface content timing follows the transition: --transition-duration is the
+   * live length of the current camera move (set by app/documentState), so text
+   * returns as the camera settles however long the flight is.
+   */
+  --transition-duration: 1500ms;
   --phase-exit: var(--motion-travel-exit);
   --phase-enter: var(--motion-travel-enter);
-  --phase-enter-delay: var(--motion-travel-enter-delay);
+  --phase-enter-delay: calc(var(--transition-duration) * var(--motion-travel-enter-at));
 }
 
 html[data-choreography='cut'] {
   --phase-exit: var(--motion-cut-exit);
   --phase-enter: var(--motion-cut-enter);
-  --phase-enter-delay: var(--motion-cut-enter-delay);
+  --phase-enter-delay: calc(var(--transition-duration) * var(--motion-cut-enter-at));
 }
 
 html[data-choreography='step'] {
   --phase-exit: var(--motion-step-exit);
   --phase-enter: var(--motion-step-enter);
-  --phase-enter-delay: var(--motion-step-enter-delay);
+  --phase-enter-delay: calc(var(--transition-duration) * var(--motion-step-enter-at));
 }
 
 html,

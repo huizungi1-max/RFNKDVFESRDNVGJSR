@@ -4,14 +4,13 @@ import { createStore } from 'zustand/vanilla';
 import type { SectionId } from '@/content/schema';
 import { environmentStore } from '@/environment/store';
 import { ticker } from '@/runtime/ticker';
+import { passage } from '@/sections/passage';
 
 import {
   clampStep,
   directionBetween,
   linearTarget,
-  resolveChoreography,
   sameStop,
-  timingFor,
   withinTarget,
   type Direction,
   type NavigationCause,
@@ -64,8 +63,7 @@ export const navigationStore = createStore<NavigationStore>()((set, get) => {
   const navigate = (to: Stop, cause: NavigationCause): boolean => {
     const from = get().current;
     if (sameStop(from, to)) return false;
-    const reduced = environmentStore.getState().reducedMotion;
-    const choreography = resolveChoreography(from, to, reduced);
+    const { choreography, duration } = passage(from, to, environmentStore.getState().reducedMotion);
     set({
       current: to,
       remembered: remember(to),
@@ -78,7 +76,7 @@ export const navigationStore = createStore<NavigationStore>()((set, get) => {
         choreography,
         cause,
         startedAt: performance.now(),
-        duration: timingFor(choreography, reduced).duration,
+        duration,
       },
     });
     ticker.wake();

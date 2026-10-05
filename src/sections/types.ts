@@ -19,9 +19,14 @@ export interface ShotFrame {
   fov: number;
   /** Narrowest horizontal field of view (degrees) preserved on tall viewports. */
   minHorizontalFov: number;
+  /**
+   * Pointer parallax as a fraction of the shot distance; 0 (the default) keeps the
+   * settled camera perfectly still. Opt in only where depth reads better for it.
+   */
+  parallax: number;
 }
 
-/** A section's contribution to the shared lighting, blended by presence. */
+/** A section's contribution to the shared lighting, blended by activation. */
 export interface LightingMood {
   readonly exposure: number;
   readonly key: number;

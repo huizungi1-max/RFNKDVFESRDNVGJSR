@@ -33,6 +33,7 @@ function StageDriver() {
   useEffect(() => {
     let seconds = 0;
     let firstFrame = true;
+    let warned = false;
     return ticker.add('render', (tick) => {
       if (stageStore.getState().status === 'suspended') return false;
       seconds += tick.delta;
@@ -42,13 +43,19 @@ function StageDriver() {
         stageStore.getState().setStatus('failed', describe(error));
         return false;
       }
+      // Invariant: react-three-fiber renders the world. A frame callback with a
+      // positive priority silently takes rendering over — never intended here.
+      if (import.meta.env.DEV && !warned && store.getState().internal.priority > 0) {
+        warned = true;
+        console.error('[stage] a useFrame callback with priority > 0 has disabled rendering');
+      }
       if (firstFrame) {
         firstFrame = false;
         stageStore.getState().setStatus('ready');
       }
       return false;
     });
-  }, []);
+  }, [store]);
 
   // New size or resolution: draw a frame to match.
   useEffect(

@@ -95,6 +95,14 @@ class Ticker {
     };
   }
 
+  /**
+   * Timestamp (ms) of the frame being produced — the time every system samples
+   * its animation at, so all motion in a frame agrees and paces with the display.
+   */
+  get time(): number {
+    return this.tick.time;
+  }
+
   /** Resumes cleanly after the page was hidden; returns the cleanup function. */
   attach(): () => void {
     const onVisibility = () => {

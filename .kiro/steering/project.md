@@ -18,11 +18,21 @@ Immersive 3D engineering portfolio for **Kaushal**, Electronics and Communicatio
 - The 3D is the experience, not decoration. Restraint over spectacle: light, motion, and effects appear only where they communicate something.
 - Avoid template / "vibe-coded" patterns: decorative glows, meaningless particles, glass panels, fake stats, generic copy, animation on everything.
 
+## Motion direction — critical
+
+- Motion is LARGE, DRAMATIC, SMOOTH, SPACIOUS, CONTROLLED. When in doubt: make the movement bigger, the path cleaner, remove competing motion, give the camera more space.
+- The camera is the primary instrument. Section transitions are physical journeys through the world (travel past structures, pull back to reveal, approach) — never a fade between sections. One large movement beats many small ones.
+- Hierarchy, never inverted: 1 camera → 2 one major 3D transformation at a time → 3 subtle lighting/environment → 4 rare micro detail, never during camera movement. Scenes read `useSectionFrame`'s `camera` intensity and `arrived` to defer.
+- Rhythm: still → one big movement → smooth settle → still. Settled compositions do not move; nothing idles in motion (no floating, pulsing, shimmering, constant shader movement, ambient parallax). Interface text fades, never travels.
+- Fast + smooth, never fast + aggressive: no sudden starts or stops, snaps, sharp turns, linear or bouncy motion. Flights stay short enough never to trap the visitor and are always interruptible with momentum.
+- Use the full depth of the space: foreground, middle ground, deep background, large separations, strong perspective changes.
+- Camera smoothness outranks effect count: simplify effects before compromising frame pacing. Reduced motion keeps its own path (cuts behind a veil, no travel).
+
 ## Architecture (PART 1) — extend, don't bypass
 
 - Navigation state (`src/navigation/store`) is the single source of truth; nothing decides position on its own.
 - All input goes through `src/input/controller`; no component adds navigation listeners.
-- The camera is owned by `gl/camera/CameraRig`; sections describe framings in `sections/registry`.
+- The camera is owned by `gl/camera/CameraRig`: C²-continuous flights between sections (`gl/camera/flight`), rails within them. Sections describe framings and world placement in `sections/registry`; flight timing and arcs come from `sections/passage`.
 - Motion uses `design/motion` tokens and `motion/spring`; DOM motion uses phases (`ui/phase`) and the generated CSS curves.
 - Section scenes are lazy modules registered in `sections/registry`, animated via `useSectionFrame`; they never touch the clock, camera, or navigation directly.
 - three.js only in `src/gl/**` and `src/sections/*/scene/**` (lint-enforced). Frame callbacks never allocate or set React state; dispose imperatively created GPU resources (`useDisposable`).

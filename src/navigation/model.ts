@@ -1,16 +1,12 @@
 import type { SectionId } from '@/content/schema';
-import {
-  reducedTransitions,
-  transitions,
-  type Choreography,
-  type TransitionTiming,
-} from '@/design/motion';
+import type { Choreography } from '@/design/motion';
 
 import { section, sectionAt } from './structure';
 
 /**
  * Pure navigation rules. No state, no side effects: given where the visitor is,
- * these decide where an intent leads and how the transition is choreographed.
+ * these decide where an intent leads. How the journey is choreographed is decided
+ * by sections/passage.
  */
 
 export interface Stop {
@@ -44,6 +40,7 @@ export interface Transition {
   readonly cause: NavigationCause;
   /** performance.now() timebase (ms). */
   readonly startedAt: number;
+  /** Milliseconds; for travel, the camera flight's length. */
   readonly duration: number;
 }
 
@@ -94,19 +91,4 @@ export function directionBetween(from: Stop, to: Stop): Direction {
       ? to.step - from.step
       : section(to.section).index - section(from.section).index;
   return delta < 0 ? -1 : 1;
-}
-
-/**
- * Adjacent sections travel; distant ones cut (fade through) rather than fly past
- * everything in between. Reduced motion always cuts.
- */
-export function resolveChoreography(from: Stop, to: Stop, reduced: boolean): Choreography {
-  if (from.section === to.section) return 'step';
-  if (reduced) return 'cut';
-  const distance = Math.abs(section(to.section).index - section(from.section).index);
-  return distance === 1 ? 'travel' : 'cut';
-}
-
-export function timingFor(choreography: Choreography, reduced: boolean): TransitionTiming {
-  return (reduced ? reducedTransitions : transitions)[choreography];
 }

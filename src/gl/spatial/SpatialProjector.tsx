@@ -8,8 +8,8 @@ import { spatial } from '@/stage/spatial';
 
 import { choreographer } from '../choreographer';
 
-/** Labels hide when their section is this faint. */
-const MIN_PRESENCE = 0.05;
+/** Labels belong to the engaged section; they hide when it disengages. */
+const MIN_ACTIVATION = 0.05;
 /** Margin beyond the viewport (NDC) before a label hides. */
 const EDGE = 1.1;
 
@@ -28,7 +28,11 @@ export function SpatialProjector() {
       for (const label of spatial.labels) {
         const anchor = spatial.anchors.get(label.anchor);
         let visible = false;
-        if (anchor && (choreographer.presence[section(anchor.section).index] ?? 0) > MIN_PRESENCE) {
+        const index = anchor ? section(anchor.section).index : -1;
+        const engaged =
+          (choreographer.activation[index] ?? 0) > MIN_ACTIVATION &&
+          (choreographer.reveal[index] ?? 0) > MIN_ACTIVATION;
+        if (anchor && engaged) {
           anchor.read(point);
           point.project(camera);
           if (

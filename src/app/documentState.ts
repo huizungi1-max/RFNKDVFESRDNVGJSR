@@ -14,7 +14,9 @@ import { isFlat, stageStore } from '@/stage/store';
  *   data-motion        full | reduced
  *   data-stage         loading | ready | suspended | flat
  *   data-section       the current section id
- *   data-choreography  travel | cut | step (only while a transition runs)
+ *   data-choreography  travel | step | cut (only while a transition runs)
+ *   --transition-duration  the running transition's length, so interface timing
+ *                          follows the camera's flight
  */
 export function syncDocumentState(): () => void {
   const root = document.documentElement;
@@ -36,6 +38,12 @@ export function syncDocumentState(): () => void {
     set('data-stage', isFlat(stage.status) ? 'flat' : stage.status);
     set('data-section', navigation.current.section);
     set('data-choreography', navigation.transition?.choreography ?? null);
+    if (navigation.transition) {
+      const duration = `${Math.round(navigation.transition.duration)}ms`;
+      if (root.style.getPropertyValue('--transition-duration') !== duration) {
+        root.style.setProperty('--transition-duration', duration);
+      }
+    }
   };
 
   write();

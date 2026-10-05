@@ -7,13 +7,7 @@
  */
 
 import { cssSpringEasing } from '../motion/curves.ts';
-import {
-  amplitude,
-  micro,
-  reducedTransitions,
-  transitions,
-  type TransitionTiming,
-} from './motion.ts';
+import { dom, micro, reducedDom, type DomTiming } from './motion.ts';
 import {
   color,
   fluidRange,
@@ -54,12 +48,13 @@ function fluid([min, max]: readonly [number, number]): string {
   return `clamp(${min}rem, ${intercept.toFixed(4)}rem + ${(slope * 100).toFixed(4)}vw, ${max}rem)`;
 }
 
-function timing(set: Readonly<Record<string, TransitionTiming>>): Declarations {
+/** Interface timing per choreography; `enter-at` scales the live transition duration. */
+function timing(set: Readonly<Record<string, DomTiming>>): Declarations {
   const out: Declarations = {};
   for (const [name, t] of Object.entries(set)) {
     out[`motion-${name}-exit`] = `${t.exit}ms`;
     out[`motion-${name}-enter`] = `${t.enter}ms`;
-    out[`motion-${name}-enter-delay`] = `${t.enterDelay}ms`;
+    out[`motion-${name}-enter-at`] = t.enterAt;
   }
   return out;
 }
@@ -80,11 +75,9 @@ export function designTokensCss(): string {
     ...prefixed('layer', layer),
     gutter: layout.gutter.wide,
     'touch-target': layout.touchTarget,
-    ...timing(transitions),
+    ...timing(dom),
     'motion-hover': `${micro.hover}ms`,
-    'motion-press': `${micro.press}ms`,
     'motion-reveal': `${micro.reveal}ms`,
-    'motion-shift': amplitude.contentShift,
     // cubic-bezier approximations; replaced by exact spring curves where linear() is supported.
     'ease-settle': 'cubic-bezier(0.2, 0.75, 0.15, 1)',
     'ease-build': 'cubic-bezier(0.7, 0, 0.85, 0.3)',
@@ -102,8 +95,7 @@ export function designTokensCss(): string {
     block(":root[data-layout='compact']", { gutter: layout.gutter.compact }),
     block(":root[data-layout='medium']", { gutter: layout.gutter.medium }),
     block(":root[data-motion='reduced']", {
-      ...timing(reducedTransitions),
-      'motion-shift': '0px',
+      ...timing(reducedDom),
       'motion-reveal': '200ms',
     }),
   ].join('\n\n');

@@ -6,22 +6,45 @@ import type { LightingMood, SectionDefinition, SectionStage, ShotFrame, Vec3 } f
 /**
  * Where each section lives in the shared world and how the camera frames it.
  *
- * STRUCTURAL: these anchors and shots only establish spatial relationships —
- * one continuous path descending into the system, each section a distinct place
- * on it, and the project stages as stations along a track. Each section's own
- * part replaces its entry and registers its scene.
+ * STRUCTURAL: the layout establishes scale and spatial relationships only. The
+ * sections spiral down around a vertical axis through the origin — each a distinct
+ * place, far from the next, viewed from its own direction — so every transition is
+ * a substantial journey with a real change of perspective. Project stages are
+ * stations along a rail. Each section's own part replaces its entry and scene.
  */
+export const WORLD = {
+  /** Distance of section anchors from the central axis. */
+  radius: 46,
+  /** Angle between consecutive sections around the axis (degrees). */
+  turn: 52,
+  /** Height lost between consecutive sections. */
+  drop: 26,
+} as const;
 
-/** Offset between consecutive section anchors along the path. */
-const PATH_STEP: Vec3 = [0, -14, -10];
-/** Spacing between project stations along the Projects track. */
-const STATION_SPACING = 7;
+/** Camera stand-off from what it frames, and height above it. */
+const SHOT = { distance: 15, height: 3.5, fov: 34 } as const;
+/** Spacing between project stations along the Projects rail. */
+const STATION_SPACING = 18;
 const LANDSCAPE = 16 / 9;
 
 const NEUTRAL_MOOD: LightingMood = { exposure: 1, key: 1.6, ambient: 0.35 };
 
-function anchorAt(index: number): Vec3 {
-  return [PATH_STEP[0] * index, PATH_STEP[1] * index, PATH_STEP[2] * index];
+interface Placement {
+  readonly anchor: Vec3;
+  /** Horizontal unit vector from the axis through the anchor. */
+  readonly outward: Vec3;
+  /** Horizontal unit vector to the camera's right when facing the anchor. */
+  readonly tangent: Vec3;
+}
+
+function placementAt(index: number): Placement {
+  const angle = (index * WORLD.turn * Math.PI) / 180;
+  const outward: Vec3 = [Math.sin(angle), 0, Math.cos(angle)];
+  return {
+    anchor: [outward[0] * WORLD.radius, -index * WORLD.drop, outward[2] * WORLD.radius],
+    outward,
+    tangent: [outward[2], 0, -outward[0]],
+  };
 }
 
 function write(out: Vec3, x: number, y: number, z: number): void {
@@ -30,36 +53,37 @@ function write(out: Vec3, x: number, y: number, z: number): void {
   out[2] = z;
 }
 
-/** A fixed framing of the anchor. */
-function fixedFrame(position: Vec3, target: Vec3, fov: number): SectionStage['frame'] {
-  const minHorizontalFov = horizontalFov(fov, LANDSCAPE);
-  return (_step, _layout, out: ShotFrame) => {
-    write(out.position, position[0], position[1], position[2]);
-    write(out.target, target[0], target[1], target[2]);
-    out.fov = fov;
-    out.minHorizontalFov = minHorizontalFov;
-  };
-}
-
-/** A framing that tracks along x with the continuous step: one station per step. */
-function trackingFrame(position: Vec3, target: Vec3, fov: number): SectionStage['frame'] {
-  const minHorizontalFov = horizontalFov(fov, LANDSCAPE);
+/**
+ * Frames a point from outside the spiral. Single-view sections frame their anchor;
+ * stepped sections place one station per step along the tangent, centred on the
+ * anchor, and the camera rides the rail with the continuous step position.
+ */
+function railFrame(placement: Placement, steps: number): SectionStage['frame'] {
+  const { outward, tangent } = placement;
+  const minHorizontalFov = horizontalFov(SHOT.fov, LANDSCAPE);
+  const centre = (steps - 1) / 2;
   return (step, _layout, out: ShotFrame) => {
-    const x = step * STATION_SPACING;
-    write(out.position, position[0] + x, position[1], position[2]);
-    write(out.target, target[0] + x, target[1], target[2]);
-    out.fov = fov;
+    const offset = (step - centre) * STATION_SPACING;
+    const tx = tangent[0] * offset;
+    const tz = tangent[2] * offset;
+    write(out.target, tx, 0, tz);
+    write(
+      out.position,
+      tx + outward[0] * SHOT.distance,
+      SHOT.height,
+      tz + outward[2] * SHOT.distance,
+    );
+    out.fov = SHOT.fov;
     out.minHorizontalFov = minHorizontalFov;
+    out.parallax = 0;
   };
 }
 
 function structuralStage(structure: SectionStructure): SectionStage {
+  const placement = placementAt(structure.index);
   return {
-    anchor: anchorAt(structure.index),
-    frame:
-      structure.steps > 1
-        ? trackingFrame([0, 1.6, 10], [0, 0, 0], 36)
-        : fixedFrame([0, 1.2, 11], [0, 0, 0], 36),
+    anchor: placement.anchor,
+    frame: railFrame(placement, structure.steps),
     mood: NEUTRAL_MOOD,
   };
 }
@@ -70,11 +94,6 @@ export const SECTION_DEFINITIONS: readonly SectionDefinition[] = SECTIONS.map((s
   scene: null,
 }));
 
-/** Station positions (local to the section) for each step — e.g. for diagnostics. */
-export function stationsOf(definition: SectionDefinition, steps: number): readonly Vec3[] {
-  const frame: ShotFrame = { position: [0, 0, 0], target: [0, 0, 0], fov: 0, minHorizontalFov: 0 };
-  return Array.from({ length: steps }, (_, step) => {
-    definition.stage.frame(step, 'wide', frame);
-    return [...frame.target];
-  });
+export function createShotFrame(): ShotFrame {
+  return { position: [0, 0, 0], target: [0, 0, 0], fov: 0, minHorizontalFov: 0, parallax: 0 };
 }

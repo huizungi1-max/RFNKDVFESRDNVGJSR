@@ -17,7 +17,7 @@ export interface PointLike {
 }
 
 export interface AnchorSource {
-  /** The section whose presence governs the anchor's visibility. */
+  /** The section whose engagement governs the anchor's visibility. */
   readonly section: SectionId;
   /** Writes the anchor's current world position into `out`. */
   read(out: PointLike): void;

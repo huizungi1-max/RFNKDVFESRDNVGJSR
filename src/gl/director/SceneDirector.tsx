@@ -28,7 +28,7 @@ import { choreographer } from '../choreographer';
 
 /** Sections leaving residency stay mounted this long, so quick returns are instant (ms). */
 const RESIDENCY_GRACE_MS = 20_000;
-/** Presence below which a section's group is not rendered at all. */
+/** Reveal below which a section's group is not rendered at all. */
 const VISIBLE_EPSILON = 0.001;
 const VISIBILITY_FRAME_PRIORITY = -80;
 
@@ -202,9 +202,10 @@ function SceneSlot({ definition, index, Scene }: SceneSlotProps) {
     return () => stageStore.getState().setScene(definition.id, 'idle');
   }, [definition.id]);
 
+  // Sections are places in one world: visible whenever loaded, wherever the camera
+  // is — the camera's journey is the transition. Off-screen content is culled.
   useFrame(() => {
-    if (group.current)
-      group.current.visible = (choreographer.presence[index] ?? 0) > VISIBLE_EPSILON;
+    if (group.current) group.current.visible = (choreographer.reveal[index] ?? 0) > VISIBLE_EPSILON;
   }, VISIBILITY_FRAME_PRIORITY);
 
   return (
@@ -221,9 +222,9 @@ function SceneSlot({ definition, index, Scene }: SceneSlotProps) {
 
 /**
  * Owns the lifecycle of every section's scene: what is mounted (residency by
- * tier), in what order things load, compilation before reveal, visibility by
- * presence, and isolation — a failing scene marks itself failed and nothing else
- * notices. Scenes themselves only render their content.
+ * tier), in what order things load, compilation before reveal, and isolation — a
+ * failing scene marks itself failed and nothing else notices. Scenes themselves
+ * only render their content.
  */
 export function SceneDirector() {
   const currentId = useNavigation((state) => state.current.section);
